@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
+using System.Linq;
 using NUnit.Framework;
 using FluentAssertions;
 
@@ -20,7 +20,7 @@ namespace TagsCloudVisualization
         [TestCase(15, 5, TestName = "Return rectangle")]
         public void PutNextRectangle_ReturnRightRectangle(int width, int height)
         {
-            var layout = new CircularCloudLayouter(new Point(12, 10));
+            var layout = new CircularCloudLayouter(new Point(10, 10));
 
             var actual = layout.PutNextRectangle(new Size(width, height));
             var expected = new Rectangle(new Point(10, 10), new Size(width, height));
@@ -60,27 +60,22 @@ namespace TagsCloudVisualization
 
         public static bool RectanglesNotOverlap(List<Rectangle> rectangles)
         {
-            foreach (var t in rectangles)
-            {
-                for (var n = rectangles.Count; n >= 0; n++)
-                {
-                    if (t.IntersectsWith(rectangles[n]))
-                        return false;
-                }
-            }
+            foreach(var currRect in rectangles)
+                if (rectangles.Any(rect => rect.IntersectsWith(currRect) && rect.Size != currRect.Size))
+                    return false;
             return true;
         }
 
         [Test]
         public void PutNextRectangle_OverlapOfRectangles_True()
         {
-            var expectedQuantity = 5;
+            var expectedQuantity = 10;
             Size[] sizeOfRectangles = new Size[expectedQuantity];
 
             for (var i = 0; i < expectedQuantity; i++)
-                sizeOfRectangles[i] = new Size(i + 1, i + 2);
+                sizeOfRectangles[i] = new Size(i + 200, i + 100);
 
-            var layout = new CircularCloudLayouter(new Point(12, 10));
+            var layout = new CircularCloudLayouter(new Point(500, 500));
 
             foreach (var size in sizeOfRectangles)
             {
@@ -89,6 +84,5 @@ namespace TagsCloudVisualization
 
             RectanglesNotOverlap(layout.AllRectangles).Should().BeTrue();
         }
-
     }
 }

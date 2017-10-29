@@ -66,14 +66,15 @@ namespace TagsCloudVisualization
             return true;
         }
 
-        [Test]
-        public void PutNextRectangle_OverlapOfRectangles_True()
+        [TestCase(5, TestName = "Немного прямоугольников")]
+        public void PutNextRectangle_NotOverlapOfRectangles(int expectedQuantity)
         {
-            var expectedQuantity = 10;
             Size[] sizeOfRectangles = new Size[expectedQuantity];
+            Random rnd = new Random();
 
             for (var i = 0; i < expectedQuantity; i++)
-                sizeOfRectangles[i] = new Size(i + 200, i + 100);
+                sizeOfRectangles[i] = new Size(
+                    i + rnd.Next(10, 300), i + rnd.Next(10, 300));
 
             var layout = new CircularCloudLayouter(new Point(500, 500));
 
@@ -83,6 +84,40 @@ namespace TagsCloudVisualization
             }
 
             RectanglesNotOverlap(layout.AllRectangles).Should().BeTrue();
+        }
+
+        [Test]
+        public void PutNextRectangle_TooManyRectangles_ThrowException()
+        {
+            const int expectedQuantity = 100;
+
+            Size[] sizeOfRectangles = new Size[expectedQuantity];
+            Random rnd = new Random();
+
+            for (var i = 0; i < expectedQuantity; i++)
+                sizeOfRectangles[i] = new Size(
+                    i + rnd.Next(10, 300), i + rnd.Next(10, 300));
+
+            var layout = new CircularCloudLayouter(new Point(500, 500));
+
+            Action res = () =>
+            {
+                foreach (var size in sizeOfRectangles)
+                {
+                layout.PutNextRectangle(size);
+                }
+            };
+
+            res.ShouldThrow<ArgumentException>().WithMessage("Too many rectangles.");
+        }
+
+        [Test]
+        public void PutNextRectangle_OneRectangle_CenterOfRectСalibration()
+        {
+            var layout = new CircularCloudLayouter(new Point(500, 500));
+            layout.PutNextRectangle(new Size(200, 100));
+
+            layout.AllRectangles[0].Location.Should().Be(new Point(400, 450));
         }
     }
 }

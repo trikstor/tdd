@@ -8,9 +8,27 @@ namespace TagsCloudVisualization
     public class CircularCloudLayouter
     {
         public List<Rectangle> AllRectangles { get; }
+        /// <summary>
+        /// Точки спирали, на которых потенциально можно
+        /// расположить прямоугольник.
+        /// </summary>
         private List<Point> PossiblePos { get; }
+        /// <summary>
+        /// Счетчик просмотренных PossiblePos,
+        /// 1-ая точка гарантированно Center, по этому
+        /// отсчет от -1.
+        /// </summary>
         private int possiblePosIndex = -1;
-        private int possiblePosQuant = 30000;
+        /// <summary>
+        /// Кол - во точек спирали, чем больше
+        /// точек - тем больше прямоугольников можно разместить.
+        /// </summary>
+        private readonly int possiblePosQuant = 100000;
+        /// <summary>
+        /// Плотность спирали, при уменьшении коэффициента
+        /// необходимо увеличивать possiblePosQuant.
+        /// </summary>
+        private double spiralDensity = 0.5;
         private Point Center { get; }
 
         public CircularCloudLayouter(Point center)
@@ -59,7 +77,12 @@ namespace TagsCloudVisualization
                 PointСalibration(PossiblePos[possiblePosIndex], rectangleSize);
         }
 
-        private Point PointСalibration(Point currPoint, Size rectangleSize)
+        /// <summary>
+        /// Позиционирование прямоугольника в центре точки, а не от
+        /// левого верхнего угла, как по умолчанию.
+        /// </summary>
+        /// <returns>Возвращает новую точку со смещением к центру прямоугольнка.</returns>
+        public Point PointСalibration(Point currPoint, Size rectangleSize)
         {
             var newPoint = new Point
             {
@@ -70,10 +93,13 @@ namespace TagsCloudVisualization
             return newPoint;
         }
 
+        /// <summary>
+        /// Задает возможные точки для прямоугольников
+        /// по модели Вогеля: точки располагаются по спирали Ферма.
+        /// </summary>
+        /// <param name="center">Центр спирали</param>
         private void VogelsModel(Point center)
         {
-            const int spiralDensity = 1;
-
             Func<int, double> takeR = n => spiralDensity * Math.Sqrt(n);
             Func<int, double> takeO = n => n * 137.5;
 
@@ -86,7 +112,7 @@ namespace TagsCloudVisualization
             }
         }
 
-        public void Drawer(string imgName)
+        public void Drawer(string path)
         {
             var bitmap = new Bitmap(1000, 1000);
             var gr = Graphics.FromImage(bitmap);
@@ -101,7 +127,7 @@ namespace TagsCloudVisualization
                 gr.DrawRectangle(rectPen, rectangle);
 
             gr.Dispose();
-            bitmap.Save($"{imgName}.bmp");
+            bitmap.Save(path);
         }
     }
 }

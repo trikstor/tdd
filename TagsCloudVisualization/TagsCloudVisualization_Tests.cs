@@ -10,6 +10,14 @@ namespace TagsCloudVisualization
     [TestFixture]
     public class TagsCloudVisualization_Tests
     {
+        private CircularCloudLayouter Layout {get; set;}
+
+        [SetUp]
+        public void SetUp()
+        {
+            Layout = new CircularCloudLayouter(new Point(500, 500));
+        }
+
         [TestCase(-10, 5, "Coordinates must be positive or zero", TestName = "Create a new layout with negative cordinate(s)")]
         public void CircularCloudLayouter_ThrowException_Constructor(int x, int y, string exMessage)
         {
@@ -17,13 +25,13 @@ namespace TagsCloudVisualization
             res.ShouldThrow<ArgumentException>().WithMessage(exMessage);
         }
 
-        [TestCase(15, 5, TestName = "Return rectangle")]
+        [TestCase(15, 5, TestName = "Return rightrectangle")]
         public void PutNextRectangle_ReturnRightRectangle(int width, int height)
         {
-            var layout = new CircularCloudLayouter(new Point(10, 10));
-
-            var actual = layout.PutNextRectangle(new Size(width, height));
-            var expected = new Rectangle(new Point(10, 10), new Size(width, height));
+            var actual = Layout.PutNextRectangle(new Size(width, height));
+            var expected = new Rectangle(
+                Layout.PointСalibration(
+                    new Point(500, 500), new Size(width, height)), new Size(width, height));
 
             actual.ShouldBeEquivalentTo(expected, options =>
                 options.ExcludingNestedObjects());
@@ -33,9 +41,7 @@ namespace TagsCloudVisualization
             TestName = "Create a new rectangle with negative or zero size")]
         public void PutNextRectangle_ThrowException(int width, int height, string exMessage)
         {
-            var layout = new CircularCloudLayouter(new Point(10, 10));
-
-            Action res = () => { layout.PutNextRectangle(new Size(width, height));};
+            Action res = () => { Layout.PutNextRectangle(new Size(width, height));};
             res.ShouldThrow<ArgumentException>().WithMessage(exMessage);
         }
 
@@ -47,15 +53,13 @@ namespace TagsCloudVisualization
 
             for (var i = 0; i < expectedQuantity; i++)
                 sizeOfRectangles[i] = new Size(i + 1, i + 2);
-            
-            var layout = new CircularCloudLayouter(new Point(12, 10));
 
             foreach (var size in sizeOfRectangles)
             {
-                layout.PutNextRectangle(size);
+                Layout.PutNextRectangle(size);
             }
 
-            layout.AllRectangles.Count.Should().Be(expectedQuantity);
+            Layout.AllRectangles.Count.Should().Be(expectedQuantity);
         }
 
         public static bool RectanglesNotOverlap(List<Rectangle> rectangles)
@@ -66,31 +70,22 @@ namespace TagsCloudVisualization
             return true;
         }
 
-        [TestCase(5, TestName = "Немного прямоугольников")]
+        [TestCase(5, TestName = "Few rectangles")]
         public void PutNextRectangle_NotOverlapOfRectangles(int expectedQuantity)
         {
-            Size[] sizeOfRectangles = new Size[expectedQuantity];
-            Random rnd = new Random();
-
-            for (var i = 0; i < expectedQuantity; i++)
-                sizeOfRectangles[i] = new Size(
-                    i + rnd.Next(10, 300), i + rnd.Next(10, 300));
-
-            var layout = new CircularCloudLayouter(new Point(500, 500));
-
-            foreach (var size in sizeOfRectangles)
-            {
-                layout.PutNextRectangle(size);
-            }
-
-            RectanglesNotOverlap(layout.AllRectangles).Should().BeTrue();
+            FillCloudWithRandRect(5);
+            RectanglesNotOverlap(Layout.AllRectangles).Should().BeTrue();
         }
 
         [Test]
         public void PutNextRectangle_TooManyRectangles_ThrowException()
         {
-            const int expectedQuantity = 100;
+            var res = FillCloudWithRandRect(100);
+            res.ShouldThrow<ArgumentException>().WithMessage("Too many rectangles.");
+        }
 
+        private Action FillCloudWithRandRect(int expectedQuantity)
+        {
             Size[] sizeOfRectangles = new Size[expectedQuantity];
             Random rnd = new Random();
 
@@ -98,26 +93,31 @@ namespace TagsCloudVisualization
                 sizeOfRectangles[i] = new Size(
                     i + rnd.Next(10, 300), i + rnd.Next(10, 300));
 
-            var layout = new CircularCloudLayouter(new Point(500, 500));
-
             Action res = () =>
             {
                 foreach (var size in sizeOfRectangles)
                 {
-                layout.PutNextRectangle(size);
+                    Layout.PutNextRectangle(size);
                 }
             };
-
-            res.ShouldThrow<ArgumentException>().WithMessage("Too many rectangles.");
+            return res;
         }
 
         [Test]
         public void PutNextRectangle_OneRectangle_CenterOfRectСalibration()
         {
-            var layout = new CircularCloudLayouter(new Point(500, 500));
-            layout.PutNextRectangle(new Size(200, 100));
+            Layout.PutNextRectangle(new Size(200, 100));
 
-            layout.AllRectangles[0].Location.Should().Be(new Point(400, 450));
+            Layout.AllRectangles[0].Location.Should().Be(new Point(400, 450));
+        }
+
+        [TearDown]
+        public void SaveCurrResult()
+        {
+            var context = TestContext.CurrentContext;
+            var path = $@"{context.TestDirectory}\{context.Test.Name}.bmp";
+            Layout.Drawer(path);
+            Console.WriteLine("Tag cloud visualization saved to file {path}");
         }
     }
 }

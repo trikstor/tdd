@@ -18,17 +18,12 @@ namespace TagsCloudVisualization
         /// 1-ая точка гарантированно Center, по этому
         /// отсчет от -1.
         /// </summary>
-        private int possiblePosIndex = -1;
+        private int PossiblePosIndex = -1;
         /// <summary>
         /// Кол - во точек спирали, чем больше
         /// точек - тем больше прямоугольников можно разместить.
         /// </summary>
-        private readonly int possiblePosQuant = 100000;
-        /// <summary>
-        /// Плотность спирали, при уменьшении коэффициента
-        /// необходимо увеличивать possiblePosQuant.
-        /// </summary>
-        private double spiralDensity = 0.5;
+        private int PossiblePosQuant { get; }
         private Point Center { get; }
 
         public CircularCloudLayouter(Point center)
@@ -39,8 +34,10 @@ namespace TagsCloudVisualization
             Center = center;
             AllRectangles = new List<Rectangle>();
             PossiblePos = new List<Point>();
+            PossiblePosQuant = 100000;
 
-            VogelsModel(Center);
+            var cloudSpiral = new Spiral(PossiblePosQuant, 0.5, Center);
+            PossiblePos = cloudSpiral.Get();
         }
 
         public Rectangle PutNextRectangle(Size rectangleSize)
@@ -48,10 +45,10 @@ namespace TagsCloudVisualization
             if (rectangleSize.Width <= 0 || rectangleSize.Height <= 0)
                 throw new ArgumentException("Size must be positive");
 
-            for (var i = possiblePosIndex + 1; i < possiblePosQuant; i++)
+            for (var i = PossiblePosIndex + 1; i < PossiblePosQuant; i++)
             {
                 var currRect = new Rectangle(GetPoint(rectangleSize), rectangleSize);
-                if (possiblePosIndex == 0)
+                if (PossiblePosIndex == 0)
                 {
                     AllRectangles.Add(currRect);
                     return currRect;
@@ -67,14 +64,14 @@ namespace TagsCloudVisualization
 
         private Point GetPoint(Size rectangleSize)
         {
-            if (possiblePosIndex == -1)
+            if (PossiblePosIndex == -1)
             {
-                possiblePosIndex++;
+                PossiblePosIndex++;
                 return PointСalibration(Center, rectangleSize);
             }
-            possiblePosIndex++;
+            PossiblePosIndex++;
             return
-                PointСalibration(PossiblePos[possiblePosIndex], rectangleSize);
+                PointСalibration(PossiblePos[PossiblePosIndex], rectangleSize);
         }
 
         /// <summary>
@@ -91,43 +88,6 @@ namespace TagsCloudVisualization
             };
 
             return newPoint;
-        }
-
-        /// <summary>
-        /// Задает возможные точки для прямоугольников
-        /// по модели Вогеля: точки располагаются по спирали Ферма.
-        /// </summary>
-        /// <param name="center">Центр спирали</param>
-        private void VogelsModel(Point center)
-        {
-            Func<int, double> takeR = n => spiralDensity * Math.Sqrt(n);
-            Func<int, double> takeO = n => n * 137.5;
-
-            for (var n = 0; n < possiblePosQuant; n++)
-            {
-                var x = Convert.ToInt32(takeR(n) * Math.Cos(takeO(n))) + Center.X;
-                var y = Convert.ToInt32(takeR(n) * Math.Sin(takeO(n))) + Center.Y;
-
-                PossiblePos.Add(new Point(x, y));
-            }
-        }
-
-        public void Drawer(string path)
-        {
-            var bitmap = new Bitmap(1000, 1000);
-            var gr = Graphics.FromImage(bitmap);
-
-            var rectPen = new Pen(Color.Blue);
-            var centerPen = new Pen(Color.Gray);
-
-            gr.DrawLine(centerPen, Center.X-500, Center.Y, Center.X + 500, Center.Y);
-            gr.DrawLine(centerPen, Center.X, Center.Y - 500, Center.X, Center.Y + 500);
-
-            foreach (var rectangle in AllRectangles)
-                gr.DrawRectangle(rectPen, rectangle);
-
-            gr.Dispose();
-            bitmap.Save(path);
         }
     }
 }

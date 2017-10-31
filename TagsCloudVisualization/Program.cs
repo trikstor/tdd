@@ -11,7 +11,10 @@ namespace TagsCloudVisualization
     {
         static void Main(string[] args)
         {
+            var center = new Point(500, 500);
+            var path = "test.bmp";
             var expectedQuantity = 40;
+            
             Size[] sizeOfRectangles = new Size[expectedQuantity];
             Random rnd = new Random();
 
@@ -19,14 +22,15 @@ namespace TagsCloudVisualization
                 sizeOfRectangles[i] = new Size(
                     rnd.Next(10, 50), rnd.Next(10, 50));
 
-            var layout = new CircularCloudLayouter(new Point(500, 500));
+            var layout = new CircularCloudLayouter(center);
 
             foreach (var size in sizeOfRectangles)
             {
                 layout.PutNextRectangle(size);
             }
 
-            layout.Drawer("test.bmp");
+            var visualize = new Visualizer(path, center);
+            visualize.Draw(layout.AllRectangles);
         }
     }
 }

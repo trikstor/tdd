@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using NUnit.Framework;
 using FluentAssertions;
+using NUnit.Framework.Interfaces;
 
 namespace TagsCloudVisualization
 {
@@ -11,11 +12,13 @@ namespace TagsCloudVisualization
     public class TagsCloudVisualization_Tests
     {
         private CircularCloudLayouter Layout {get; set;}
+        private Point Center { get; set; }
 
         [SetUp]
         public void SetUp()
         {
-            Layout = new CircularCloudLayouter(new Point(500, 500));
+            Center = new Point(500, 500);
+            Layout = new CircularCloudLayouter(Center);
         }
 
         [TestCase(-10, 5, "Coordinates must be positive or zero", TestName = "Create a new layout with negative cordinate(s)")]
@@ -25,7 +28,7 @@ namespace TagsCloudVisualization
             res.ShouldThrow<ArgumentException>().WithMessage(exMessage);
         }
 
-        [TestCase(15, 5, TestName = "Return rightrectangle")]
+        [TestCase(15, 5, TestName = "Return right rectangle")]
         public void PutNextRectangle_ReturnRightRectangle(int width, int height)
         {
             var actual = Layout.PutNextRectangle(new Size(width, height));
@@ -112,12 +115,19 @@ namespace TagsCloudVisualization
         }
 
         [TearDown]
-        public void SaveCurrResult()
+        public void TearDown()
         {
             var context = TestContext.CurrentContext;
-            var path = $@"{context.TestDirectory}\{context.Test.Name}.bmp";
-            Layout.Drawer(path);
-            Console.WriteLine("Tag cloud visualization saved to file {path}");
+
+            if (context.Result.Outcome.Status == TestStatus.Failed)
+            {
+                var path = $@"{context.TestDirectory}\{context.Test.Name}.bmp";
+
+                var visualize = new Visualizer(path, Center);
+                visualize.Draw(Layout.AllRectangles);
+
+                Console.WriteLine("Tag cloud visualization saved to file {path}");
+            }
         }
     }
 }

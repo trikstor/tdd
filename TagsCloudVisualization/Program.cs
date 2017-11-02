@@ -1,22 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TagsCloudVisualization
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void SaveTagsCloudWithRandSizes(Point center, int expectedQuantity, string path)
         {
-            var center = new Point(500, 500);
-            var path = "test.bmp";
-            var expectedQuantity = 40;
-            
-            Size[] sizeOfRectangles = new Size[expectedQuantity];
-            Random rnd = new Random();
+            var sizeOfRectangles = new Size[expectedQuantity];
+            var rnd = new Random();
 
             for (var i = 0; i < expectedQuantity; i++)
                 sizeOfRectangles[i] = new Size(
@@ -25,12 +17,28 @@ namespace TagsCloudVisualization
             var layout = new CircularCloudLayouter(center);
 
             foreach (var size in sizeOfRectangles)
-            {
                 layout.PutNextRectangle(size);
-            }
 
             var visualize = new Visualizer(path, center);
             visualize.Draw(layout.AllRectangles);
+        }
+
+        public static void SaveTagsCloudWithStaticSizes(Point center, Size rectSize, int expectedQuantity, string path)
+        {
+            var sizeOfRectangles = new Size[expectedQuantity];
+            var rnd = new Random();
+
+            var layout = new CircularCloudLayouter(center);
+
+            foreach (var size in sizeOfRectangles)
+                layout.PutNextRectangle(rectSize);
+
+            var visualize = new Visualizer(path, center);
+            visualize.Draw(layout.AllRectangles);
+        }
+        static void Main(string[] args)
+        {
+            SaveTagsCloudWithRandSizes(new Point(500, 500), 40, "test.bmp");
         }
     }
 }

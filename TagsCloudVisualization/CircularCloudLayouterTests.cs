@@ -5,11 +5,12 @@ using System.Linq;
 using NUnit.Framework;
 using FluentAssertions;
 using NUnit.Framework.Interfaces;
+using System.IO;
 
 namespace TagsCloudVisualization
 {
     [TestFixture]
-    public class TagsCloudVisualization_Tests
+    public class CircularCloudLayouterTests
     {
         private CircularCloudLayouter Layout {get; set;}
         private Point Center { get; set; }
@@ -33,7 +34,7 @@ namespace TagsCloudVisualization
         {
             var actual = Layout.PutNextRectangle(new Size(width, height));
             var expected = new Rectangle(
-                Layout.PointСalibration(
+                Layout.RectangleCenterOffset(
                     new Point(500, 500), new Size(width, height)), new Size(width, height));
 
             actual.ShouldBeEquivalentTo(expected, options =>
@@ -52,7 +53,7 @@ namespace TagsCloudVisualization
         public void PutNextRectangle_QuantityOfRectangles_EqualsQuantity()
         {
             var expectedQuantity = 5;
-            Size[] sizeOfRectangles = new Size[expectedQuantity];
+            var sizeOfRectangles = new Size[expectedQuantity];
 
             for (var i = 0; i < expectedQuantity; i++)
                 sizeOfRectangles[i] = new Size(i + 1, i + 2);
@@ -89,8 +90,8 @@ namespace TagsCloudVisualization
 
         private Action FillCloudWithRandRect(int expectedQuantity)
         {
-            Size[] sizeOfRectangles = new Size[expectedQuantity];
-            Random rnd = new Random();
+            var sizeOfRectangles = new Size[expectedQuantity];
+            var rnd = new Random();
 
             for (var i = 0; i < expectedQuantity; i++)
                 sizeOfRectangles[i] = new Size(
@@ -114,6 +115,29 @@ namespace TagsCloudVisualization
             Layout.AllRectangles[0].Location.Should().Be(new Point(400, 450));
         }
 
+        private int DistanceToCurrRect(Rectangle currRect)
+        {
+            return (int)Math.Sqrt(((currRect.X - Center.X) * (currRect.X - Center.X))
+                             + ((currRect.Y - Center.Y) * (currRect.Y - Center.Y)));
+        }
+
+        private int MaxEnvirons()
+        {
+            return Layout.AllRectangles
+                    .Select(DistanceToCurrRect)
+                    .Concat(new[] {0}).Max();
+        }
+
+        [Test]
+        public void PutNextRectangle_ManyRectangles_CorrectLocation()
+        {
+            for(var i = 0; i < 7; i++)
+            {
+                Layout.PutNextRectangle(new Size(100, 100));
+            }
+            MaxEnvirons().Should().BeLessThan(220);
+        }
+
         [TearDown]
         public void TearDown()
         {
@@ -121,12 +145,15 @@ namespace TagsCloudVisualization
 
             if (context.Result.Outcome.Status == TestStatus.Failed)
             {
-                var path = $@"{context.TestDirectory}\{context.Test.Name}.bmp";
-
-                var visualize = new Visualizer(path, Center);
+                var visualize = new Visualizer(
+                    Path.Combine(
+                        context.TestDirectory, 
+                        context.Test.Name +".bmp"
+                        ), 
+                    Center);
                 visualize.Draw(Layout.AllRectangles);
 
-                Console.WriteLine("Tag cloud visualization saved to file {path}");
+                TestContext.Write("Tag cloud visualization saved to file {path}");
             }
         }
     }

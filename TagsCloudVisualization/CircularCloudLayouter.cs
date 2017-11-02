@@ -37,7 +37,7 @@ namespace TagsCloudVisualization
             PossiblePosQuant = 100000;
 
             var cloudSpiral = new Spiral(PossiblePosQuant, 0.5, Center);
-            PossiblePos = cloudSpiral.Get();
+            PossiblePos = cloudSpiral.Get().ToList();
         }
 
         public Rectangle PutNextRectangle(Size rectangleSize)
@@ -47,13 +47,9 @@ namespace TagsCloudVisualization
 
             for (var i = PossiblePosIndex + 1; i < PossiblePosQuant; i++)
             {
-                var currRect = new Rectangle(GetPoint(rectangleSize), rectangleSize);
-                if (PossiblePosIndex == 0)
-                {
-                    AllRectangles.Add(currRect);
-                    return currRect;
-                }
-                if (!AllRectangles.Any(rect => rect.IntersectsWith(currRect)))
+                var currRect = new Rectangle(GetPossiblePointForRectCenter(rectangleSize), rectangleSize);
+
+                if (!AllRectangles.Any(rect => rect.IntersectsWith(currRect)) || PossiblePosIndex == 0)
                 {
                     AllRectangles.Add(currRect);
                     return currRect;
@@ -62,24 +58,19 @@ namespace TagsCloudVisualization
             throw new ArgumentException("Too many rectangles.");
         }
 
-        private Point GetPoint(Size rectangleSize)
+        private Point GetPossiblePointForRectCenter(Size rectangleSize)
         {
+            Point currCenter;
             if (PossiblePosIndex == -1)
-            {
-                PossiblePosIndex++;
-                return PointСalibration(Center, rectangleSize);
-            }
+                currCenter = Center;
+            else
+                currCenter = PossiblePos[PossiblePosIndex];
             PossiblePosIndex++;
-            return
-                PointСalibration(PossiblePos[PossiblePosIndex], rectangleSize);
+            return RectangleCenterOffset(currCenter, rectangleSize);
         }
 
-        /// <summary>
-        /// Позиционирование прямоугольника в центре точки, а не от
-        /// левого верхнего угла, как по умолчанию.
-        /// </summary>
-        /// <returns>Возвращает новую точку со смещением к центру прямоугольнка.</returns>
-        public Point PointСalibration(Point currPoint, Size rectangleSize)
+
+        public Point RectangleCenterOffset(Point currPoint, Size rectangleSize)
         {
             var newPoint = new Point
             {

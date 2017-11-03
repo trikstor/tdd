@@ -68,10 +68,8 @@ namespace TagsCloudVisualization
 
         public static bool RectanglesNotOverlap(List<Rectangle> rectangles)
         {
-            foreach(var currRect in rectangles)
-                if (rectangles.Any(rect => rect.IntersectsWith(currRect) && rect.Size != currRect.Size))
-                    return false;
-            return true;
+            return rectangles.All(currRect => !rectangles
+            .Any(rect => rect.IntersectsWith(currRect) && rect.Size != currRect.Size));
         }
 
         [TestCase(5, TestName = "Few rectangles")]

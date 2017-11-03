@@ -25,18 +25,16 @@ namespace TagsCloudVisualization
 
         public static void SaveTagsCloudWithStaticSizes(Point center, Size rectSize, int expectedQuantity, string path)
         {
-            var sizeOfRectangles = new Size[expectedQuantity];
-            var rnd = new Random();
-
             var layout = new CircularCloudLayouter(center);
 
-            foreach (var size in sizeOfRectangles)
+            for(var i = 0; i < expectedQuantity; i++)
                 layout.PutNextRectangle(rectSize);
 
             var visualize = new Visualizer(path, center);
             visualize.Draw(layout.AllRectangles);
         }
-        static void Main(string[] args)
+
+        private static void Main(string[] args)
         {
             SaveTagsCloudWithRandSizes(new Point(500, 500), 40, "test.bmp");
         }

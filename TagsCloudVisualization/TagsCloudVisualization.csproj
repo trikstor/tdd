@@ -60,6 +60,7 @@
     <Compile Include="CircularCloudLayouterTests.cs" />
     <Compile Include="SpiralTests.cs" />
     <Compile Include="Visualizer.cs" />
+    <Compile Include="VisualizerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

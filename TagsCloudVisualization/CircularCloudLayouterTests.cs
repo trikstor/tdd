@@ -136,6 +136,17 @@ namespace TagsCloudVisualization
             MaxEnvirons().Should().BeLessThan(220);
         }
 
+        [Test]
+        public void PutNextRectangle_VeryBigRectangles_ThrowException()
+        {
+            Action res = () =>
+            {
+                Layout.PutNextRectangle(new Size(100000, 100000));
+                Layout.PutNextRectangle(new Size(1, 1));
+            };
+            res.ShouldThrow<ArgumentException>().WithMessage("Too many rectangles.");
+        }
+
         [TearDown]
         public void TearDown()
         {

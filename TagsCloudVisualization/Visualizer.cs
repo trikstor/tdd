@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 
 namespace TagsCloudVisualization
@@ -12,19 +13,23 @@ namespace TagsCloudVisualization
 
         public Visualizer(string path, Point center)
         {
-            Path = path;
+            if (GetFrameSize(center) <= 0)
+                throw new ArgumentException("Центр должен быть больше нуля.");
             Center = center;
-            FrameSize = GetFrameSize;
+            Path = path;
+            FrameSize = GetFrameSize(center);
         }
 
         public Visualizer(string path, Point center, int frameSize)
         {
+            if (frameSize <= 0)
+                throw new ArgumentException("Центр должен быть больше нуля.");
             Path = path;
             Center = center;
             FrameSize = frameSize;
         }
 
-        private int GetFrameSize => Math.Max(Center.X, Center.Y) * 2;
+        private int GetFrameSize(Point center) => Math.Max(center.X, center.Y) * 2;
 
         private void DrawAxis(Graphics gr, int frameSize)
         {

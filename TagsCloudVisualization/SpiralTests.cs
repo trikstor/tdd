@@ -29,7 +29,7 @@ namespace TagsCloudVisualization
         [Test]
         public void SpiralGet_NormalData_CorrectSpiral()
         {
-            var actualSpiral = new Spiral(5, 1, Center).Get().ToList();
+            var actualSpiral = new Spiral(5, 1, Center).GetPoints().Take(5).ToList();
             var expectedSpiral = new List<Point>
             {
                 new Point(500, 499),

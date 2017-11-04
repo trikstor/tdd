@@ -1,34 +1,42 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace TagsCloudVisualization
 {
     public class Program
     {
-        public static void SaveTagsCloudWithRandSizes(Point center, int expectedQuantity, string path)
+        public static void SaveTagsCloud(Point center, int expectedQuantity, string path)
         {
-            var sizeOfRectangles = new Size[expectedQuantity];
+            var rectList = new List<Size>();
             var rnd = new Random();
 
             for (var i = 0; i < expectedQuantity; i++)
-                sizeOfRectangles[i] = new Size(
-                    rnd.Next(10, 50), rnd.Next(10, 50));
+                rectList.Add(new Size(
+                    rnd.Next(10, 50), rnd.Next(10, 50)));
 
-            var layout = new CircularCloudLayouter(center);
-
-            foreach (var size in sizeOfRectangles)
-                layout.PutNextRectangle(size);
-
-            var visualize = new Visualizer(path, center);
-            visualize.Draw(layout.AllRectangles);
+            SetRectanglesToLayout(center, rectList, expectedQuantity, path);
         }
 
-        public static void SaveTagsCloudWithStaticSizes(Point center, Size rectSize, int expectedQuantity, string path)
+        public static void SaveTagsCloud(Point center, Size rectSize, int expectedQuantity, string path)
+        {
+            var rectList = new List<Size>
+            {
+                rectSize
+            };
+            SetRectanglesToLayout(center, rectList, expectedQuantity, path);
+        }
+
+        private static void SetRectanglesToLayout(Point center, List<Size> rectList, int expectedQuantity, string path)
         {
             var layout = new CircularCloudLayouter(center);
 
-            for(var i = 0; i < expectedQuantity; i++)
-                layout.PutNextRectangle(rectSize);
+            if(rectList.Count > 1)
+                foreach (var size in rectList)
+                    layout.PutNextRectangle(size);
+            else
+                for (var i = 0; i < expectedQuantity; i++)
+                    layout.PutNextRectangle(rectList[0]);
 
             var visualize = new Visualizer(path, center);
             visualize.Draw(layout.AllRectangles);
@@ -36,7 +44,7 @@ namespace TagsCloudVisualization
 
         private static void Main(string[] args)
         {
-            SaveTagsCloudWithRandSizes(new Point(500, 500), 40, "test.bmp");
+            SaveTagsCloud(new Point(500, 500), 40, "test.bmp");
         }
     }
 }

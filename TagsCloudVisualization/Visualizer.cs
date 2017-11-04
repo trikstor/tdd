@@ -52,12 +52,11 @@ namespace TagsCloudVisualization
         public void Draw(List<Rectangle> rectangles)
         {
             var bitmap = new Bitmap(FrameSize, FrameSize);
-            var gr = Graphics.FromImage(bitmap);
-
-            DrawAxis(gr, FrameSize);
-            DrawAllRectangles(gr, rectangles);
-            
-            gr.Dispose();
+            using (var gr = Graphics.FromImage(bitmap))
+            {
+                DrawAxis(gr, FrameSize);
+                DrawAllRectangles(gr, rectangles);
+            }
             bitmap.Save(Path);
         }
     }

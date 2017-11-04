@@ -37,7 +37,7 @@ namespace TagsCloudVisualization
             PossiblePosQuant = 100000;
 
             var cloudSpiral = new Spiral(PossiblePosQuant, 0.5, Center);
-            PossiblePos = cloudSpiral.Get().ToList();
+            PossiblePos = cloudSpiral.GetPoints().Take(PossiblePosQuant).ToList();
         }
 
         public Rectangle PutNextRectangle(Size rectangleSize)
@@ -60,11 +60,8 @@ namespace TagsCloudVisualization
 
         private Point GetPossiblePointForRectCenter(Size rectangleSize)
         {
-            Point currCenter;
-            if (PossiblePosIndex == -1)
-                currCenter = Center;
-            else
-                currCenter = PossiblePos[PossiblePosIndex];
+            var currCenter = PossiblePosIndex == -1 ? 
+                Center : PossiblePos[PossiblePosIndex];
             PossiblePosIndex++;
             return RectangleCenterOffset(currCenter, rectangleSize);
         }

@@ -32,7 +32,7 @@ namespace TagsCloudVisualization
             SpiralCenter = spiralCenter;
         }
 
-        private readonly double GoldAngle = 137.508;
+        private const double GoldAngle = 137.508;
         private double TakeRPart(int n) => SpiralDensity * Math.Sqrt(n);
         private double TakeOPart(int n) => n * GoldAngle;
 
@@ -42,7 +42,7 @@ namespace TagsCloudVisualization
         /// Угол 137.508° - золотой угол, который приближается 
         /// к соотношениям чисел Фибоначчи.
         /// </summary>
-        public IEnumerable<Point> Get()
+        public IEnumerable<Point> GetPoints()
         {
             for (var n = 0; n < PossiblePosQuant; n++)
             {

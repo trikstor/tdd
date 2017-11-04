@@ -1,17 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 
 namespace TagsCloudVisualization
 {
-    public class Spiral
+    public class Spiral : IEnumerable<Point>
     {
-        /// <summary>
-        /// Кол - во точек спирали, чем больше
-        /// точек - тем больше прямоугольников можно разместить.
-        /// </summary>
-        private int PossiblePosQuant { get; }
-
         /// <summary>
         /// Плотность спирали, при уменьшении коэффициента
         /// необходимо увеличивать possiblePosQuant.
@@ -20,14 +15,12 @@ namespace TagsCloudVisualization
 
         private Point SpiralCenter { get; }
 
-        public Spiral(int possiblePosQuant, double spiralDensity, Point spiralCenter)
+        public Spiral(double spiralDensity, Point spiralCenter)
         {
             if(spiralCenter == null)
-                throw new ArgumentException("Точка центра спирали должна быть задана.");
-            if (possiblePosQuant < 1 || spiralDensity < 0.1)
-                throw new ArgumentException("Кол-во точек и плотность спирали должны быть положительными.");
-
-            PossiblePosQuant = possiblePosQuant;
+                throw new ArgumentException("Точка центра спирали должна быть заданна.");
+            if (spiralDensity < 0.1)
+                throw new ArgumentException("Плотность спирали должна быть положительной.");
             SpiralDensity = spiralDensity;
             SpiralCenter = spiralCenter;
         }
@@ -42,15 +35,22 @@ namespace TagsCloudVisualization
         /// Угол 137.508° - золотой угол, который приближается 
         /// к соотношениям чисел Фибоначчи.
         /// </summary>
-        public IEnumerable<Point> GetPoints()
+        public IEnumerator<Point> GetEnumerator()
         {
-            for (var n = 0; n < PossiblePosQuant; n++)
+            var n = 0;
+            while(true)
             {
                 var x = Convert.ToInt32(TakeRPart(n) * Math.Cos(TakeOPart(n))) + SpiralCenter.X;
                 var y = Convert.ToInt32(TakeRPart(n) * Math.Sin(TakeOPart(n))) + SpiralCenter.Y;
 
                 yield return new Point(x, y);
+                n++;
             }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

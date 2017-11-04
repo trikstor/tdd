@@ -8,23 +8,9 @@ namespace TagsCloudVisualization
     public class CircularCloudLayouter
     {
         public List<Rectangle> AllRectangles { get; }
-        /// <summary>
-        /// Точки спирали, на которых потенциально можно
-        /// расположить прямоугольник.
-        /// </summary>
-        private List<Point> PossiblePos { get; }
-        /// <summary>
-        /// Счетчик просмотренных PossiblePos,
-        /// 1-ая точка гарантированно Center, по этому
-        /// отсчет от -1.
-        /// </summary>
-        private int PossiblePosIndex = -1;
-        /// <summary>
-        /// Кол - во точек спирали, чем больше
-        /// точек - тем больше прямоугольников можно разместить.
-        /// </summary>
-        private int PossiblePosQuant { get; }
+        private IEnumerator<Point> CloudSpiral { get; set; }
         private Point Center { get; }
+        private bool FirstPointFlag = true;
 
         public CircularCloudLayouter(Point center)
         {
@@ -33,11 +19,6 @@ namespace TagsCloudVisualization
 
             Center = center;
             AllRectangles = new List<Rectangle>();
-            PossiblePos = new List<Point>();
-            PossiblePosQuant = 100000;
-
-            var cloudSpiral = new Spiral(PossiblePosQuant, 0.5, Center);
-            PossiblePos = cloudSpiral.GetPoints().Take(PossiblePosQuant).ToList();
         }
 
         public Rectangle PutNextRectangle(Size rectangleSize)
@@ -45,24 +26,31 @@ namespace TagsCloudVisualization
             if (rectangleSize.Width <= 0 || rectangleSize.Height <= 0)
                 throw new ArgumentException("Size must be positive");
 
-            for (var i = PossiblePosIndex + 1; i < PossiblePosQuant; i++)
+            Rectangle currRect;
+            CloudSpiral = new Spiral(0.5, Center).GetEnumerator();
+            for (;;)
             {
-                var currRect = new Rectangle(GetPossiblePointForRectCenter(rectangleSize), rectangleSize);
-
-                if (!AllRectangles.Any(rect => rect.IntersectsWith(currRect)) || PossiblePosIndex == 0)
-                {
-                    AllRectangles.Add(currRect);
-                    return currRect;
-                }
+                currRect = new Rectangle(GetPossiblePointForRectCenter(rectangleSize), rectangleSize);
+                if (!AllRectangles.Any(rect => rect.IntersectsWith(currRect)) || FirstPointFlag)
+                    break;
             }
-            throw new ArgumentException("Too many rectangles.");
+            AllRectangles.Add(currRect);
+            return currRect;
         }
 
         private Point GetPossiblePointForRectCenter(Size rectangleSize)
         {
-            var currCenter = PossiblePosIndex == -1 ? 
-                Center : PossiblePos[PossiblePosIndex];
-            PossiblePosIndex++;
+            Point currCenter;
+            if (FirstPointFlag)
+            {
+                currCenter = Center;
+                FirstPointFlag = false;
+            }
+            else
+            {
+                CloudSpiral.MoveNext();
+                currCenter = CloudSpiral.Current;
+            }
             return GetRectangleCenterOffset(currCenter, rectangleSize);
         }
 

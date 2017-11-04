@@ -34,7 +34,7 @@ namespace TagsCloudVisualization
         {
             var actual = Layout.PutNextRectangle(new Size(width, height));
             var expected = new Rectangle(
-                Layout.RectangleCenterOffset(
+                Layout.GetRectangleCenterOffset(
                     new Point(500, 500), new Size(width, height)), new Size(width, height));
 
             actual.ShouldBeEquivalentTo(expected, options =>

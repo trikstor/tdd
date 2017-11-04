@@ -63,11 +63,11 @@ namespace TagsCloudVisualization
             var currCenter = PossiblePosIndex == -1 ? 
                 Center : PossiblePos[PossiblePosIndex];
             PossiblePosIndex++;
-            return RectangleCenterOffset(currCenter, rectangleSize);
+            return GetRectangleCenterOffset(currCenter, rectangleSize);
         }
 
 
-        public Point RectangleCenterOffset(Point currPoint, Size rectangleSize)
+        public Point GetRectangleCenterOffset(Point currPoint, Size rectangleSize)
         {
             var newPoint = new Point
             {

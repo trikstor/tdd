@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace TagsCloudVisualization
 {
@@ -8,27 +9,38 @@ namespace TagsCloudVisualization
     {
         private string Path { get; }
         private Point Center { get; }
-        private int FrameSize { get; }
+        private int FrameSize { get; set; }
 
         public Visualizer(string path, Point center)
         {
-            if (GetFrameSize(center) <= 0)
-                throw new ArgumentException("Центр должен быть больше нуля.");
+            if (center.X < 0 || center.Y < 0)
+                throw new ArgumentException("Координаты центра должны быть больше нуля либо равны нулю.");
             Center = center;
             Path = path;
-            FrameSize = GetFrameSize(center);
+            FrameSize = 0;
         }
 
         public Visualizer(string path, Point center, int frameSize)
         {
+            if (center.X < 0 || center.Y < 0)
+                throw new ArgumentException("Координаты центра должны быть больше нуля либо равны нулю.");
             if (frameSize <= 0)
-                throw new ArgumentException("Центр должен быть больше нуля.");
+                throw new ArgumentException("Размер изображения должен быть больше нуля.");
             Path = path;
             Center = center;
             FrameSize = frameSize;
         }
 
-        private int GetFrameSize(Point center) => Math.Max(center.X, center.Y) * 2;
+        private int DistanceBetweenPoints(Point p1, Point p2)
+        {
+            return (int)Math.Sqrt(((p1.X - p2.X) * (p1.X - p2.X))
+                                  + ((p1.Y - p2.Y) * (p1.Y - p2.Y)));
+        }
+
+        private void SetFrameSize()
+        {
+           FrameSize = Math.Max(Center.X, Center.Y) * 2;
+        }
 
         private void DrawAxis(Graphics gr, int frameSize)
         {
@@ -50,6 +62,9 @@ namespace TagsCloudVisualization
 
         public void Draw(List<Rectangle> rectangles)
         {
+            if(FrameSize == 0)
+                SetFrameSize();
+
             var bitmap = new Bitmap(FrameSize, FrameSize);
             using (var gr = Graphics.FromImage(bitmap))
             {

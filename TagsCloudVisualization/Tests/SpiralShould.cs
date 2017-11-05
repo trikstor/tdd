@@ -8,7 +8,7 @@ using System.Linq;
 namespace TagsCloudVisualization
 {
     [TestFixture]
-    public class SpiralTests
+    public class SpiralShould
     {
         private Point Center { get; set; }
 
@@ -19,14 +19,14 @@ namespace TagsCloudVisualization
         }
 
         [TestCase(0, "Плотность спирали должна быть положительной.", TestName = "spiralDensity is null")]
-        public void SpiralConstructor_ThrowException(double spiralDensity, string exMessage)
+        public void ThrowException_UncorrectParams(double spiralDensity, string exMessage)
         {
             Action res = () => { new Spiral(spiralDensity, Center); };
             res.ShouldThrow<ArgumentException>().WithMessage(exMessage);
         }
 
         [Test]
-        public void SpiralGet_NormalData_CorrectSpiral()
+        public void Generate_CorrectSequenceOfPoints()
         {
             var actualSpiral = new Spiral(1, Center).GetEnumerator();
             var actualPoints = new List<Point>();

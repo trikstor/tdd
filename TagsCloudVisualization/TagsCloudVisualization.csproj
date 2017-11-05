@@ -57,10 +57,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Spiral.cs" />
-    <Compile Include="CircularCloudLayouterTests.cs" />
-    <Compile Include="SpiralTests.cs" />
+    <Compile Include="Tests\CircularCloudLayouterShould.cs" />
+    <Compile Include="Tests\SpiralShould.cs" />
     <Compile Include="Visualizer.cs" />
-    <Compile Include="VisualizerTests.cs" />
+    <Compile Include="Tests\VisualizerShould.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

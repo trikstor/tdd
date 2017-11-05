@@ -10,7 +10,7 @@ using System.IO;
 namespace TagsCloudVisualization
 {
     [TestFixture]
-    public class CircularCloudLayouterTests
+    public class CircularCloudLayouterShould
     {
         private CircularCloudLayouter Layout {get; set;}
         private Point Center { get; set; }
@@ -23,7 +23,7 @@ namespace TagsCloudVisualization
         }
 
         [TestCase(-10, 5, "Coordinates must be positive or zero", TestName = "Create a new layout with negative cordinate(s)")]
-        public void CircularCloudLayouter_ThrowException_Constructor(int x, int y, string exMessage)
+        public void ThrowException_UncorrectParams(int x, int y, string exMessage)
         {
             Action res = () => { new CircularCloudLayouter(new Point(x, y)); };
             res.ShouldThrow<ArgumentException>().WithMessage(exMessage);
@@ -106,17 +106,25 @@ namespace TagsCloudVisualization
             Layout.AllRectangles[0].Location.Should().Be(new Point(400, 450));
         }
 
-        private int DistanceToCurrRect(Rectangle currRect)
+        private int DistanceBetweenPoints(Point p1, Point p2)
         {
-            return (int)Math.Sqrt(((currRect.X - Center.X) * (currRect.X - Center.X))
-                             + ((currRect.Y - Center.Y) * (currRect.Y - Center.Y)));
+            return (int)Math.Sqrt(((p1.X - p2.X) * (p1.X - p2.X))
+                                  + ((p1.Y - p2.Y) * (p1.Y - p2.Y)));
         }
 
-        private int MaxEnvirons()
+        private int MaxCenterEnvirons(List<Rectangle> rectangles)
         {
-            return Layout.AllRectangles
-                    .Select(DistanceToCurrRect)
-                    .Concat(new[] {0}).Max();
+            return rectangles
+                .Select(rect => DistanceBetweenPoints(rect.Location, Center))
+                .Concat(new[] { 0 }).Max();
+        }
+
+        private int MaxRectDiagonal(List<Rectangle> rectangles)
+        {
+            return rectangles
+                .Select(rect => DistanceBetweenPoints(
+                    rect.Location, new Point(rect.X + rect.Width, rect.Y + rect.Height)))
+                .Concat(new[] { 0 }).Max();
         }
 
         [Test]
@@ -126,7 +134,8 @@ namespace TagsCloudVisualization
             {
                 Layout.PutNextRectangle(new Size(100, 100));
             }
-            MaxEnvirons().Should().BeLessThan(220);
+            (MaxCenterEnvirons(Layout.AllRectangles) + MaxRectDiagonal(Layout.AllRectangles))
+                .Should().BeLessThan(352);
         }
 
         [TearDown]

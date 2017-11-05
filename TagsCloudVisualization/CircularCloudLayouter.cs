@@ -10,7 +10,6 @@ namespace TagsCloudVisualization
         public List<Rectangle> AllRectangles { get; }
         private IEnumerator<Point> CloudSpiral { get; set; }
         private Point Center { get; }
-        private bool FirstPointFlag = true;
 
         public CircularCloudLayouter(Point center)
         {
@@ -31,7 +30,7 @@ namespace TagsCloudVisualization
             for (;;)
             {
                 currRect = new Rectangle(GetPossiblePointForRectCenter(rectangleSize), rectangleSize);
-                if (!AllRectangles.Any(rect => rect.IntersectsWith(currRect)) || FirstPointFlag)
+                if (!AllRectangles.Any(rect => rect.IntersectsWith(currRect)) || AllRectangles.Count == 0)
                     break;
             }
             AllRectangles.Add(currRect);
@@ -41,10 +40,9 @@ namespace TagsCloudVisualization
         private Point GetPossiblePointForRectCenter(Size rectangleSize)
         {
             Point currCenter;
-            if (FirstPointFlag)
+            if (AllRectangles.Count == 0)
             {
-                currCenter = Center;
-                FirstPointFlag = false;
+                currCenter = Center;;
             }
             else
             {

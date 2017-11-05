@@ -13,8 +13,8 @@ namespace TagsCloudVisualization
 
         public Visualizer(string path, Point center)
         {
-            if (center.X < 0 || center.Y < 0)
-                throw new ArgumentException("Координаты центра должны быть больше нуля либо равны нулю.");
+            if (center.X <= 0 && center.Y <= 0)
+                throw new ArgumentException("Координаты центра должны быть больше нуля.");
             Center = center;
             Path = path;
             FrameSize = 0;
@@ -29,12 +29,6 @@ namespace TagsCloudVisualization
             Path = path;
             Center = center;
             FrameSize = frameSize;
-        }
-
-        private int DistanceBetweenPoints(Point p1, Point p2)
-        {
-            return (int)Math.Sqrt(((p1.X - p2.X) * (p1.X - p2.X))
-                                  + ((p1.Y - p2.Y) * (p1.Y - p2.Y)));
         }
 
         private void SetFrameSize()

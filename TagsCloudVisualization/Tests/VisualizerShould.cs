@@ -8,19 +8,17 @@ namespace TagsCloudVisualization
     [TestFixture]
     public class VisualizerShould
     {
-        [TestCase(-1, 0, TestName = "X is negative")]
-        [TestCase(0, -1, TestName = "Y is negative")]
-        public void ThrowException_NegativeCenterPoint(int x, int y)
+        public void ThrowException_ZeroCenterPoint()
         {
-            Action res = () => { new Visualizer("test.bmp", new Point(x, y));};
+            Action res = () => { new Visualizer("test.bmp", new Point(0, 0));};
             res.ShouldThrow<ArgumentException>()
-                .WithMessage("Координаты центра должны быть больше нуля либо равны нулю.");
+                .WithMessage("Координаты центра должны быть больше нуля.");
         }
 
         [Test]
-        public void NotThrowException_ZeroCenterPoint()
+        public void NotThrowException_PositiveCenterPoint()
         {
-            Action res = () => { new Visualizer("test.bmp", new Point(0, 0)); };
+            Action res = () => { new Visualizer("test.bmp", new Point(5, 1)); };
             res.ShouldNotThrow();
         }
         [Test]

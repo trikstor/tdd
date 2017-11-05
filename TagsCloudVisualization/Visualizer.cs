@@ -13,7 +13,7 @@ namespace TagsCloudVisualization
 
         public Visualizer(string path, Point center)
         {
-            if (center.X <= 0 && center.Y <= 0)
+            if (center.X <= 0  || center.Y <= 0)
                 throw new ArgumentException("Координаты центра должны быть больше нуля.");
             Center = center;
             Path = path;

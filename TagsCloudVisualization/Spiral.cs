@@ -26,8 +26,8 @@ namespace TagsCloudVisualization
         }
 
         private const double GoldAngle = 137.508;
-        private double TakeRPart(int n) => SpiralDensity * Math.Sqrt(n);
-        private double TakeOPart(int n) => n * GoldAngle;
+        private double TakeRPart(int pointIndex) => SpiralDensity * Math.Sqrt(pointIndex);
+        private double TakeOPart(int pointIndex) => pointIndex * GoldAngle;
 
         /// <summary>
         /// Задает возможные точки для прямоугольников
@@ -37,14 +37,14 @@ namespace TagsCloudVisualization
         /// </summary>
         public IEnumerator<Point> GetEnumerator()
         {
-            var n = 0;
+            var pointIndex = 0;
             while(true)
             {
-                var x = Convert.ToInt32(TakeRPart(n) * Math.Cos(TakeOPart(n))) + SpiralCenter.X;
-                var y = Convert.ToInt32(TakeRPart(n) * Math.Sin(TakeOPart(n))) + SpiralCenter.Y;
+                var x = Convert.ToInt32(TakeRPart(pointIndex) * Math.Cos(TakeOPart(pointIndex))) + SpiralCenter.X;
+                var y = Convert.ToInt32(TakeRPart(pointIndex) * Math.Sin(TakeOPart(pointIndex))) + SpiralCenter.Y;
 
                 yield return new Point(x, y);
-                n++;
+                pointIndex++;
             }
         }
 

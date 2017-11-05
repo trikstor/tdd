@@ -30,7 +30,7 @@ namespace TagsCloudVisualization
             for (;;)
             {
                 currRect = new Rectangle(GetPossiblePointForRectCenter(rectangleSize), rectangleSize);
-                if (!AllRectangles.Any(rect => rect.IntersectsWith(currRect)) || AllRectangles.Count == 0)
+                if (!AllRectangles.Any(rect => rect.IntersectsWith(currRect)))
                     break;
             }
             AllRectangles.Add(currRect);

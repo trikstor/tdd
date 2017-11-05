@@ -146,12 +146,12 @@ namespace TagsCloudVisualization
             if (context.Result.Outcome.Status == TestStatus.Failed)
             {
                 var visualize = new Visualizer(
-                    Path.Combine(
-                        context.TestDirectory, 
-                        context.Test.Name +".bmp"
-                        ), 
                     Center);
-                visualize.Draw(Layout.AllRectangles);
+                var path = Path.Combine(
+                    context.TestDirectory,
+                    context.Test.Name + ".bmp"
+                );
+                visualize.Draw(Layout.AllRectangles).Save(path);
 
                 TestContext.Write("Tag cloud visualization saved to file {path}");
             }

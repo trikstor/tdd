@@ -7,26 +7,23 @@ namespace TagsCloudVisualization
 {
     public class Visualizer
     {
-        private string Path { get; }
         private Point Center { get; }
         private int FrameSize { get; set; }
 
-        public Visualizer(string path, Point center)
+        public Visualizer(Point center)
         {
             if (center.X <= 0 || center.Y <= 0)
                 throw new ArgumentException("Координаты центра должны быть больше нуля.");
-            Center = center;
-            Path = path;
+            Center = center;;
             FrameSize = 0;
         }
 
-        public Visualizer(string path, Point center, int frameSize)
+        public Visualizer(Point center, int frameSize)
         {
             if (center.X <= 0 || center.Y <= 0)
                 throw new ArgumentException("Координаты центра должны быть больше нуля.");
             if (frameSize <= 0)
                 throw new ArgumentException("Размер изображения должен быть больше нуля.");
-            Path = path;
             Center = center;
             FrameSize = frameSize;
         }
@@ -46,7 +43,7 @@ namespace TagsCloudVisualization
                 Center.X, Center.Y + frameSize / 2);
         }
 
-        private void DrawAllRectangles(Graphics gr, List<Rectangle> rectangles)
+        private void AddAllRectanglesToImage(Graphics gr, List<Rectangle> rectangles)
         {
             var rectPen = new Pen(Color.Blue);
 
@@ -54,7 +51,7 @@ namespace TagsCloudVisualization
                 gr.DrawRectangle(rectPen, rectangle);
         }
 
-        public void Draw(List<Rectangle> rectangles)
+        public Bitmap Draw(List<Rectangle> rectangles)
         {
             if(FrameSize == 0)
                 SetFrameSize();
@@ -63,9 +60,9 @@ namespace TagsCloudVisualization
             using (var gr = Graphics.FromImage(bitmap))
             {
                 DrawAxis(gr, FrameSize);
-                DrawAllRectangles(gr, rectangles);
+                AddAllRectanglesToImage(gr, rectangles);
             }
-            bitmap.Save(Path);
+            return bitmap;
         }
     }
 }

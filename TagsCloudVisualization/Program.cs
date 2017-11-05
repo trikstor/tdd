@@ -38,8 +38,8 @@ namespace TagsCloudVisualization
                 for (var i = 0; i < expectedQuantity; i++)
                     layout.PutNextRectangle(rectList[0]);
 
-            var visualize = new Visualizer(path, center);
-            visualize.Draw(layout.AllRectangles);
+            var visualize = new Visualizer(center);
+            visualize.Draw(layout.AllRectangles).Save(path);
         }
 
         private static void Main(string[] args)
